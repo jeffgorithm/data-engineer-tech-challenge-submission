@@ -18,7 +18,7 @@ def filter_data(df, time_range):
 if __name__ == '__main__':
     df = read_json('covid_cases.json')
 
-    st.title('No. of Covid-19 cases vs Time')
+    st.title('No. of Covid-19 cases in Singapore')
 
     time_range = st.slider(
         label="Select Date Range",
