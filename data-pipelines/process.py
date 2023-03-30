@@ -2,7 +2,8 @@ import pandas as pd
 import argparse
 import os
 from dateutil.parser import parse
-from datetime import datetime
+from datetime import datetime, timedelta
+from hashlib import sha256
 import logging
 
 logging.basicConfig(level=logging.INFO)
@@ -21,20 +22,44 @@ def process(input_dir, success_dir, unsuccessful_dir):
         
         dataframe = pd.concat([dataframe, df])
 
+    # Validate mobile_no
     dataframe['valid_mobile_no'] = dataframe['mobile_no'].apply(lambda row: validate_mobile_no(row))
+    
+    # Validate email
     dataframe['valid_email'] = dataframe['email'].str.match(r"^.+@.+\..{2,}$")
+
+    # Process date
     dataframe['cleaned_date'] = dataframe['date_of_birth'].apply(lambda row: clean_date(row))
     dataframe['dob'] = pd.to_datetime(dataframe['cleaned_date'])
     date = datetime.strptime("2022-01-01", '%Y-%m-%d')
-    dataframe['age'] = (date - dataframe['dob'])
+    dataframe['age_days'] = (date - dataframe['dob'])
+    dataframe['above_18'] = dataframe['age_days'].apply(lambda row: is_above_18(row))
+    dataframe['date_of_birth'] = dataframe['dob'].apply(lambda row: format_birthday(row))
+
+    # Process name field
     dataframe['empty_name'] = dataframe['name'].isnull()
+    dataframe['name'] = dataframe['name'].apply(lambda row: filter_salutation(row))
+    dataframe['name'] = dataframe['name'].apply(lambda row: filter_title(row))
     dataframe['first_name'] = dataframe['name'].apply(lambda row: format_first_name(row))
     dataframe['last_name'] = dataframe['name'].apply(lambda row: format_last_name(row))
 
-    print(dataframe.head())
+    # Generate membership_id
+    dataframe['membership_id'] = dataframe.apply(create_membership_id, axis=1)
+    dataframe['success'] = dataframe.apply(validate_applications, axis=1)
 
-    output_path = os.path.join(success_dir, 'output.csv')
-    dataframe.to_csv(output_path)
+    # Separate successful and unsuccessful applications
+    success_df = dataframe[dataframe['success'] == True]
+    success_df.reset_index(drop=True, inplace=True)
+    unsuccessful_df = dataframe[dataframe['success'] == False]
+    unsuccessful_df.reset_index(drop=True, inplace=True)
+
+    final_cols = ['first_name', 'last_name', 'date_of_birth', 'above_18', 'membership_id']
+
+    success_output_path = os.path.join(success_dir, 'output.csv')
+    unsuccessful_output_path = os.path.join(unsuccessful_dir, 'output.csv')
+
+    success_df[final_cols].to_csv(path_or_buf=success_output_path, index=False)
+    unsuccessful_df[final_cols].to_csv(path_or_buf=unsuccessful_output_path, index=False)
 
 def clean_date(date):
     try:
@@ -58,21 +83,49 @@ def clean_date(date):
 
         return None
 
+def validate_applications(row):
+    if row['valid_mobile_no'] == False or row['valid_email'] == False or row['above_18'] == False or row['empty_name'] == True:
+        return False
+    else:
+        return True
+
 # Function that ensures that mobile_no is 8 digits
 def validate_mobile_no(mobile_no):
     if len(mobile_no) == 8:
         return True
     else:
         return False
-    
-def validate_age(row):
-    # TODO: Validate age
-    # Applicant is over 18 years old as of 1 Jan 2022
-    pass
+
+def is_above_18(row):
+    # Create a new field named above_18 based on the applicant's birthday
+    if row >= timedelta(days=(18 * 365)):
+        return True
+    else:
+        return False
 
 def filter_salutation(name):
-    # TODO: Filter salutations such as Mr., Dr. etc.
-    pass
+    # Filter salutations in prefix such as Mr., Dr. etc.
+    salutations = ['Mr. ', 'Dr. ', 'Ms. ', 'Mrs. ']
+
+    for salutation in salutations:
+        if salutation in name:
+            new_name = name.strip(salutation)
+
+            return new_name
+    
+    return name
+
+def filter_title(name):
+    # Filter titles from postfix such as MD, etc.
+    titles = [' MD']
+
+    for title in titles:
+        if title in name:
+            new_name = name.strip(title)
+
+            return new_name
+    
+    return name
 
 # Function to extract first_name from name
 def format_first_name(name):
@@ -95,16 +148,24 @@ def format_last_name(name):
         return None
 
 def format_birthday(row):
-    # TODO: Format birthday field into YYYYMMDD
-    pass
+    # Format birthday field into YYYYMMDD
+    try:
+        return row.strftime('%Y%m%d')
+    except Exception as e:
+        logger.error(e)
+        logger.error('Error when parsing datetime: {}'.format(row))
 
-def is_above_18(row):
-    # TODO: Create a new field named above_18 based on the applicant's birthday
-    pass
+        return None
+    
 
 def create_membership_id(row):
-    # TODO: Membership IDs for successful applications should be the user's last name, followed by a SHA256 hash of the applicant's birthday, truncated to first 5 digits of hash (i.e <last_name>_<hash(YYYYMMDD)>)
-    pass
+    # Create membership_id for successful applications should be the user's last name, followed by a SHA256 hash of the applicant's birthday, truncated to first 5 digits of hash (i.e <last_name>_<hash(YYYYMMDD)>)
+    m = sha256()
+    m.update(str(row['dob']).encode('utf-8'))
+    digest = m.hexdigest()
+    membership_id = '{}_{}'.format(str(row['last_name']), digest[:5])
+
+    return membership_id
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(
