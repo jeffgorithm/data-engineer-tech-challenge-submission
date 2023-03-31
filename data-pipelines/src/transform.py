@@ -11,8 +11,9 @@ class Transform:
     def __init__(self):
         logger.info('Initialising transformer')
         self.final_cols = [
-            'first_name', 'last_name', 'date_of_birth', \
-            'above_18', 'membership_id'
+            'membership_id', 'first_name', 'last_name', \
+            'email', 'date_of_birth', 'mobile_no', \
+            'above_18'
             ]
         logger.info('Initialised transformer')
         
