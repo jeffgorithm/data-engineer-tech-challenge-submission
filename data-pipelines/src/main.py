@@ -8,6 +8,11 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 def main(input_dir, success_dir, unsuccessful_dir):
+    logger.info('Starting data pipeline application')
+    logger.info('Source Directory: {}'.format(input_dir))
+    logger.info('Destination Directory (Success): {}'.format(success_dir))
+    logger.info('Destination Directory (Unsuccess): {}'.format(unsuccessful_dir))
+    
     extractor = Extract(input_dir=input_dir)
     df = extractor.extract_data()
 
@@ -22,6 +27,9 @@ def main(input_dir, success_dir, unsuccessful_dir):
     loader.load(df=success_df)
     loader.load(df=unsuccessful_df, dest='unsuccess')
 
+    extractor.delete_files()
+
+    logger.info('Completed data pipeline application')
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(

@@ -9,12 +9,15 @@ logger = logging.getLogger(__name__)
 
 class Transform:
     def __init__(self):
+        logger.info('Initialising transformer')
         self.final_cols = [
             'first_name', 'last_name', 'date_of_birth', \
             'above_18', 'membership_id'
             ]
+        logger.info('Initialised transformer')
         
     def transform(self, df):
+        logger.info('Starting transfomation')
         # Validate mobile_no
         df['valid_mobile_no'] = df['mobile_no'].apply(lambda row: self.validate_mobile_no(row))
         
@@ -43,8 +46,13 @@ class Transform:
         # Separate successful and unsuccessful applications
         success_df = df[df['success'] == True]
         success_df.reset_index(drop=True, inplace=True)
+        logger.info('No. of successful rows: {}'.format(str(len(success_df.index))))
+
         unsuccessful_df = df[df['success'] == False]
         unsuccessful_df.reset_index(drop=True, inplace=True)
+        logger.info('No. of unsuccessful rows: {}'.format(str(len(unsuccessful_df.index))))
+
+        logger.info('Completed transformation')
 
         return success_df[self.final_cols], unsuccessful_df[self.final_cols]
 
