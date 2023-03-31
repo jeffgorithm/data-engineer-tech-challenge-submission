@@ -1,9 +1,7 @@
-CREATE DATABASE ecommerce;
-
 --Create Tables
 CREATE TABLE members(
     membership_id VARCHAR PRIMARY KEY NOT NULL,
-    first_name TEXT NOT NULL,
+    first_name VARCHAR NOT NULL,
     last_name VARCHAR NOT NULL,
     email VARCHAR NOT NULL,
     date_of_birth VARCHAR NOT NULL,
