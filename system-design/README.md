@@ -31,7 +31,20 @@
 5. Reusability
     - Lambda API is reusable for both web application #1 and #2
     - Lambda application for processing images is a generalised component
-    
+
+# Cloud Services Used
+1. Lambda
+    - Serverless, no need to provision/configure infrastructure to handle high or low traffic conditions
+2. Simple Queue Service
+    - Allows REST API to respond to client immediately after upload is completed
+    - Able to trigger Lambda function for image processing
+3. S3
+    - Highly scalable object store, suitable for files such as images as well as metadata objects (e.g. CSV, JSON, etc.)
+    - Lifecyle policy that deletes objects older than 7 days for compliancy purposes
+4. Athena
+    - Allows BI analysts to perform on-demand serverless queries on metadata stored in S3
+    - Serverless in nature, charged only for amount of compute used
+
 # Sequence of Events
 
 ## Web Application #1
