@@ -42,3 +42,25 @@
     ORDER BY total DESC
     LIMIT 3;
     ```
+
+# Handling Database at Scale
+
+> TLDR: It is easier to scale read-heavy applications than write-heavy applications
+
+## Write Heavy Application
+
+### Short-term solutions
+1. Use vertical scaling to allow for higher write performance/throughput
+
+### Long-term solutions
+1. Introduce queue component (i.e. Kafka, MQ, etc.) in front of database to insert records into database at a consistent rate
+
+## Read Heavy Application
+
+### Short-term solutions
+1. Use vertical scaling to allow for higher read performance/throughput
+
+### Long-term solutions
+1. Horizontal scaling, use multiple read-replicas to handle high amount of reads
+2. Cache data using a in-memory solution (e.g. Redis)
+3. Perform partitioning or sharding of tables based on a key (requires domain knowledge to decide of partition/shard key)
