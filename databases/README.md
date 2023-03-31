@@ -21,6 +21,21 @@
     ```
     sh scripts/run.sh
     ```
+2. Insert 50 rows of data into members table
+    ```
+    python insert_data.py
+    ```
+3. Verify rows are inserted by connecting via psql console
+    ```
+    # Connect to DB via psql command
+    psql -h localhost -U postgres
+
+    # Enter password=postgres when prompted
+
+    # Execute the following SQL statement
+    SELECT * FROM members;
+    ```
+
 
 # SQL Queries
 1. Which are the top 10 members by spending?
