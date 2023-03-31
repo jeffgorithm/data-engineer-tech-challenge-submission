@@ -5,10 +5,14 @@
 
 # Prerequisites
 - Docker Engine
+- Python 3
+- Pip
 
 # Technologies
 - Docker
 - PostgreSQL
+- SQL Alchemy
+- Psycopg
 
 # Setup
 1. Build custom PostgreSQL Docker image, pull official PostgreSQL image and add create_table.sql to create tables upon container start up
