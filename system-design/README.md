@@ -48,3 +48,7 @@
 4. Lambda function uploads raw image to AWS S3 (input directory), enqueues message (i.e. metadata, S3 URI etc.) to SQS
 5. SQS triggers Image Processing Application (Lambda)
 6. Image Processing Application (Lambda) processes image, outputs processed image and metadata into AWS S3
+
+## Business Intelligence
+1. User views/filters for data via BI dashboard
+2. AWS Athena queries for metadata stored in AWS S3 and returns results to BI dashboard
