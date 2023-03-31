@@ -3,8 +3,13 @@
     <img src="screenshot.png" alt="screenshot"/>
 </p>
 
+# Prerequisite
+- Python 3
+- Pip
+
 # Technologies
 - Requests
+- Pandas
 - Streamlit
 
 # Setup
