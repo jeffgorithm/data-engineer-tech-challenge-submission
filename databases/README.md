@@ -25,9 +25,20 @@
 # SQL Queries
 1. Which are the top 10 members by spending?
     ```
-
+    SELECT a.membership_id, a.first_name, a.last_name, SUM(b.total_price) AS total
+    FROM members a
+    JOIN transactions t ON a.membership_id = b.membership_id
+    GROUP BY a.membership_id
+    ORDER BY total DESC
+    LIMIT 10;
     ```
 2. Which are the top 3 items that are frequently brought by members
     ```
-
+    SELECT a.item_name, (COUNT(b.transaction_id) * b.quantity) AS total
+    FROM items a
+    JOIN transaction_details b ON a.transaction_id = b.transaction_id
+    JOIN transactions c ON b.item_id = c.item_id
+    GROUP BY a.item_id, a.item_name, c.quantity
+    ORDER BY total DESC
+    LIMIT 3;
     ```
