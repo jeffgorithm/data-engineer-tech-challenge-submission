@@ -5,8 +5,9 @@ from datetime import date
 def read_json(file_path):
     df = pd.read_json(path_or_buf=file_path)
     df['Date'] = pd.to_datetime(df['Date']).dt.date
-    df['Weekly Moving Average'] = df['Cases'].rolling(window=7).mean()
-    df['Monthly Moving Average'] = df['Cases'].rolling(window=30).mean()
+    df['Daily Active Cases'] = df['Cases'].diff(periods=1)
+    df['Weekly Moving Average'] = df['Daily Active Cases'].rolling(window=7).mean()
+    df['Monthly Moving Average'] = df['Daily Active Cases'].rolling(window=30).mean()
 
     return df
 
@@ -18,7 +19,7 @@ def filter_data(df, time_range):
 if __name__ == '__main__':
     df = read_json('covid_cases.json')
 
-    st.title('No. of Covid-19 cases in Singapore')
+    st.title('Covid-19 Cases in Singapore')
 
     time_range = st.slider(
         label="Select Date Range",
@@ -30,6 +31,11 @@ if __name__ == '__main__':
 
     filter_df, df = filter_data(df, time_range)
 
+    st.title('No. of Covid-19 cases (Daily)')
+    st.bar_chart(data=filter_df, x='Date', y='Daily Active Cases')
+
+    st.title('No. of Covid-19 cases (Trends)')
+    st.line_chart(data=filter_df, x='Date', y=['Daily Active Cases', 'Weekly Moving Average', 'Monthly Moving Average'])
+
+    st.title('No. of Covid-19 cases (Cumulative)')
     st.bar_chart(data=filter_df, x='Date', y='Cases')
-    st.line_chart(data=filter_df, x='Date', y=['Cases', 'Weekly Moving Average', 'Monthly Moving Average'])
-        
