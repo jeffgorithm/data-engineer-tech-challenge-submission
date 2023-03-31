@@ -15,6 +15,18 @@
     ```
     sh scripts/build.sh
     ```
+2. Create new Python virtual environment
+    ```
+    python -m venv venv
+    ```
+3. Activate Python virtual environment
+    ```
+    source venv/bin/activate
+    ```
+4. Install Python dependencies
+    ```
+    pip install -r requirements.txt
+    ```
 
 # Run
 1. Start Docker container, new database and tables will be created upon start
